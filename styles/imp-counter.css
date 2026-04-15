@@ -1,0 +1,201 @@
+.imp-counter-window {
+  background: rgba(5, 5, 5, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.42);
+  color: #f4f4f4;
+  min-width: 104px !important;
+}
+
+.imp-counter-window .window-header {
+  display: none;
+}
+
+.imp-counter-window .window-content {
+  background: transparent;
+  color: #f4f4f4;
+  padding: 0;
+}
+
+.imp-counter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 92px;
+  padding: 5px;
+}
+
+.imp-counter-meta {
+  align-items: center;
+  cursor: move;
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  min-height: 16px;
+  user-select: none;
+}
+
+.imp-counter-caption {
+  color: rgba(255, 255, 255, 0.9);
+  flex: 1 1 auto;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.imp-counter-meta-actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 1px;
+}
+
+.imp-counter-window-action {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 9px;
+  height: 15px;
+  justify-content: center;
+  line-height: 1;
+  min-height: 15px;
+  padding: 0;
+  width: 15px;
+}
+
+.imp-counter-window-action:hover,
+.imp-counter-window-action.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.imp-counter-pill {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 8px;
+  padding: 1px 3px;
+  text-transform: uppercase;
+}
+
+.imp-counter-value {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  height: 33px;
+  min-width: 0;
+  padding: 0 5px;
+  text-align: center;
+}
+
+.imp-counter-value:focus {
+  border-color: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+  outline: none;
+}
+
+.imp-counter-value::-webkit-inner-spin-button,
+.imp-counter-value::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.imp-counter-controls {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.imp-counter-step {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  height: 23px;
+  line-height: 1;
+  min-height: 23px;
+  padding: 0;
+}
+
+.imp-counter-step:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.52);
+}
+
+.imp-counter-step:disabled,
+.imp-counter-value:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.imp-counter-note {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 10px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.imp-counter-window.imp-counter-pinned {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+#imp-counter-launcher {
+  align-items: center;
+  bottom: 78px;
+  display: flex;
+  gap: 4px;
+  left: 12px;
+  pointer-events: auto;
+  position: fixed;
+  transition: bottom 180ms ease, transform 180ms ease, opacity 180ms ease;
+  z-index: 80;
+}
+
+#imp-counter-launcher button {
+  align-items: center;
+  background: rgba(14, 14, 14, 0.82);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #f1f1f1;
+  display: inline-flex;
+  font-size: 12px;
+  gap: 4px;
+  height: 28px;
+  max-width: 145px;
+  overflow: hidden;
+  padding: 0 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#imp-counter-launcher button:hover,
+#imp-counter-launcher button.is-open {
+  border-color: rgba(255, 255, 255, 0.36);
+}
+
+#imp-counter-launcher button.can-undo {
+  border-color: rgba(255, 255, 255, 0.46);
+}
+
+#imp-counter-launcher .imp-counter-launcher-value {
+  font-weight: 800;
+}
+
+#imp-counter-launcher .imp-counter-launcher-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.imp-counter-launcher-hidden #imp-counter-launcher {
+  display: none;
+}

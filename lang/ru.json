@@ -1,0 +1,73 @@
+{
+  "ADVCOUNTER": {
+    "Settings": {
+      "CounterOneLabel": {
+        "Name": "Текст первого окна",
+        "Hint": "Например: Players Advantage, Party Advantage или Игроки."
+      },
+      "CounterTwoLabel": {
+        "Name": "Текст второго окна",
+        "Hint": "Например: Enemies Advantage, Opposition Advantage или Противники."
+      },
+      "AllowPlayersCounterOne": {
+        "Name": "Игроки могут менять первое окно",
+        "Hint": "GM всегда может менять оба значения. Этот параметр разрешает или запрещает изменения обычным игрокам."
+      },
+      "AllowPlayersCounterTwo": {
+        "Name": "Игроки могут менять второе окно",
+        "Hint": "Обычно второе окно удобно оставить под контролем GM, если там Advantage противников."
+      },
+      "AllowNegativeValues": {
+        "Name": "Разрешить отрицательные значения",
+        "Hint": "По умолчанию счётчики не опускаются ниже 0, что подходит для Advantage. Включите, если модуль используется для другого ресурса."
+      },
+      "ResetOnCombatStart": {
+        "Name": "Сбрасывать при создании Combat",
+        "Hint": "Если включено, активный GM автоматически сбросит оба счётчика в 0 при создании нового Combat."
+      },
+      "AutoOpenWindows": {
+        "Name": "Открывать окна при входе",
+        "Hint": "Client setting: влияет только на текущего пользователя."
+      },
+      "ShowLauncher": {
+        "Name": "Показывать кнопку Adv",
+        "Hint": "Client setting: маленькая кнопка внизу слева открывает или скрывает окна."
+      },
+      "CounterOneValue": {
+        "Name": "Первое значение"
+      },
+      "CounterTwoValue": {
+        "Name": "Второе значение"
+      },
+      "CounterOneState": {
+        "Name": "Состояние первого окна"
+      },
+      "CounterTwoState": {
+        "Name": "Состояние второго окна"
+      },
+      "AutoOpenDefaultDisabledMigration": {
+        "Name": "Миграция отключения auto-open"
+      }
+    },
+    "UI": {
+      "AdvButton": "Adv",
+      "Locked": "Нет доступа",
+      "LockedText": "Только GM или разрешённые игроки могут менять это значение.",
+      "CloseTitle": "Закрыть",
+      "MinusTitle": "Минус 1. Shift-click: минус 5.",
+      "PlusTitle": "Плюс 1. Shift-click: плюс 5.",
+      "ToggleWindowsTitle": "Открыть или скрыть окна Imp Counter",
+      "ResetCountersTitle": "Сбросить счётчики в 0",
+      "UndoCountersTitle": "Вернуть предыдущее значение",
+      "ResetCountersLabel": "Обновить",
+      "UndoCountersLabel": "Вернуть",
+      "OpenCounterOneTitle": "Открыть или скрыть первый счётчик",
+      "OpenCounterTwoTitle": "Открыть или скрыть второй счётчик"
+    },
+    "Notifications": {
+      "NoGM": "Imp Counter: нужен активный GM, чтобы сохранить изменение world value.",
+      "NoPermissionWindow": "Imp Counter: у вас нет права менять это окно.",
+      "NoPermissionCounters": "Imp Counter: у вас нет права менять счётчики."
+    }
+  }
+}
