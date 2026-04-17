@@ -3,9 +3,6 @@
     <div class="imp-counter-meta">
       <span class="imp-counter-caption">{{label}}</span>
       <div class="imp-counter-meta-actions">
-        {{#unless canEdit}}
-          <span class="imp-counter-pill">{{lockedLabel}}</span>
-        {{/unless}}
         <button type="button" class="imp-counter-window-action" data-action="close" title="{{closeTitle}}">
           <i class="fas fa-xmark"></i>
         </button>
@@ -18,9 +15,5 @@
       <button type="button" class="imp-counter-step" data-delta="-1" title="{{minusTitle}}" {{#unless canEdit}}disabled{{/unless}}>-</button>
       <button type="button" class="imp-counter-step" data-delta="1" title="{{plusTitle}}" {{#unless canEdit}}disabled{{/unless}}>+</button>
     </div>
-
-    {{#unless canEdit}}
-      <p class="imp-counter-note">{{lockedText}}</p>
-    {{/unless}}
   </section>
 </form>

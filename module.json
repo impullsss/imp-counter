@@ -2,7 +2,7 @@
   "id": "imp-counter",
   "title": "Imp Counter",
   "description": "Two compact shared counter windows for tracking Advantage or any other table resource in any Foundry system.",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "authors": [
     {
       "name": "Impullsss"
