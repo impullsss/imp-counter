@@ -1,6 +1,7 @@
 const ADV_COUNTER_MODULE_ID = "imp-counter";
 const ADV_COUNTER_MODULE_PATH = document.currentScript?.src?.match(/\/modules\/([^/]+)\//)?.[1] ?? ADV_COUNTER_MODULE_ID;
-const ADV_COUNTER_SOCKET = `module.${ADV_COUNTER_MODULE_ID}`;
+const ADV_COUNTER_STATE_JOURNAL_NAME = "Imp Counter State";
+const ADV_COUNTER_VALUES_FLAG = "values";
 
 function advCounterT(key) {
   return game.i18n.localize(`ADVCOUNTER.${key}`);
@@ -38,7 +39,59 @@ function advCounterLabel(key) {
 
 function advCounterValue(key) {
   const config = advCounterConfig(key);
+  const documentValue = advCounterStoredValues()[key];
+  if (Number.isFinite(documentValue)) return documentValue;
   return Number(game.settings.get(ADV_COUNTER_MODULE_ID, config.valueSetting) ?? 0);
+}
+
+function advCounterStateJournal() {
+  return game.journal?.getName(ADV_COUNTER_STATE_JOURNAL_NAME) || null;
+}
+
+function advCounterStoredValues() {
+  return foundry.utils.deepClone(advCounterStateJournal()?.getFlag(ADV_COUNTER_MODULE_ID, ADV_COUNTER_VALUES_FLAG) || {});
+}
+
+async function advCounterEnsureStateJournal() {
+  let journal = advCounterStateJournal();
+  if (journal) {
+    if (game.user?.isGM) await advCounterPrepareStateJournal(journal);
+    return journal;
+  }
+
+  if (!game.user?.isGM) return null;
+  journal = await JournalEntry.create({
+    name: ADV_COUNTER_STATE_JOURNAL_NAME,
+    ownership: advCounterStateJournalOwnership(),
+    pages: []
+  });
+  await advCounterPrepareStateJournal(journal);
+  return journal;
+}
+
+function advCounterStateJournalOwnership(journal = null) {
+  const ownership = foundry.utils.deepClone(journal?.ownership || {});
+  const ownerLevel = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
+  ownership.default = ownerLevel;
+  ownership[game.user.id] = ownerLevel;
+  return ownership;
+}
+
+async function advCounterPrepareStateJournal(journal) {
+  const ownership = {
+    ...advCounterStateJournalOwnership(journal)
+  };
+  if (JSON.stringify(journal.ownership || {}) !== JSON.stringify(ownership)) {
+    journal = await journal.update({ ownership });
+  }
+
+  const values = journal.getFlag(ADV_COUNTER_MODULE_ID, ADV_COUNTER_VALUES_FLAG);
+  if (!values || typeof values !== "object") {
+    await journal.setFlag(ADV_COUNTER_MODULE_ID, ADV_COUNTER_VALUES_FLAG, {
+      one: Number(game.settings.get(ADV_COUNTER_MODULE_ID, ADV_COUNTERS.one.valueSetting) ?? 0),
+      two: Number(game.settings.get(ADV_COUNTER_MODULE_ID, ADV_COUNTERS.two.valueSetting) ?? 0)
+    });
+  }
 }
 
 function advCounterState(key) {
@@ -59,21 +112,34 @@ function advCounterNormalizeValue(value) {
 }
 
 function advCounterIsPrimaryGM() {
-  if (!game.user?.isGM) return false;
-  const activeGMs = game.users
-    .filter((user) => user.isGM && user.active)
-    .sort((left, right) => left.id.localeCompare(right.id));
-  return activeGMs[0]?.id === game.user.id;
+  return Boolean(game.user?.isGM);
 }
 
-async function advCounterSetValue(key, value) {
+async function advCounterSetValue(key, value, { broadcast = true } = {}) {
   const config = advCounterConfig(key);
   if (!config) return;
-  await game.settings.set(ADV_COUNTER_MODULE_ID, config.valueSetting, advCounterNormalizeValue(value));
+  const normalized = advCounterNormalizeValue(value);
+  const journal = await advCounterEnsureStateJournal();
+  if (!journal) {
+    advCounterWarnNoGM();
+    ImpCounterManager.renderAll();
+    return;
+  }
+
+  try {
+    await journal.setFlag(ADV_COUNTER_MODULE_ID, `${ADV_COUNTER_VALUES_FLAG}.${key}`, normalized);
+  } catch (error) {
+    console.warn(`${ADV_COUNTER_MODULE_ID} | Could not update counter journal`, error);
+    ui.notifications.warn(advCounterT("Notifications.NoPermissionWindow"));
+    ImpCounterManager.renderAll();
+    return;
+  }
+  if (game.user?.isGM) await game.settings.set(ADV_COUNTER_MODULE_ID, config.valueSetting, normalized);
+  ImpCounterManager?.renderAll?.();
 }
 
-async function advCounterAdjustValue(key, delta) {
-  await advCounterSetValue(key, advCounterValue(key) + Number(delta || 0));
+async function advCounterAdjustValue(key, delta, options = {}) {
+  await advCounterSetValue(key, advCounterValue(key) + Number(delta || 0), options);
 }
 
 function advCounterWarnNoGM() {
@@ -86,22 +152,7 @@ async function advCounterRequestSet(key, value) {
     return;
   }
 
-  if (game.user.isGM) {
-    await advCounterSetValue(key, value);
-    return;
-  }
-
-  if (!game.users.find((user) => user.isGM && user.active)) {
-    advCounterWarnNoGM();
-    return;
-  }
-
-  game.socket.emit(ADV_COUNTER_SOCKET, {
-    action: "set",
-    key,
-    value: advCounterNormalizeValue(value),
-    userId: game.user.id
-  });
+  await advCounterSetValue(key, value);
 }
 
 async function advCounterRequestAdjust(key, delta) {
@@ -110,22 +161,7 @@ async function advCounterRequestAdjust(key, delta) {
     return;
   }
 
-  if (game.user.isGM) {
-    await advCounterAdjustValue(key, delta);
-    return;
-  }
-
-  if (!game.users.find((user) => user.isGM && user.active)) {
-    advCounterWarnNoGM();
-    return;
-  }
-
-  game.socket.emit(ADV_COUNTER_SOCKET, {
-    action: "adjust",
-    key,
-    delta: Number(delta || 0),
-    userId: game.user.id
-  });
+  await advCounterAdjustValue(key, delta);
 }
 
 class ImpCounterWindow extends Application {
@@ -837,24 +873,6 @@ function registerAdvCounterSettings() {
   });
 }
 
-function registerAdvCounterSocket() {
-  game.socket.on(ADV_COUNTER_SOCKET, async (payload) => {
-    if (!advCounterIsPrimaryGM()) return;
-    if (!payload || !advCounterConfig(payload.key)) return;
-
-    const requester = game.users.get(payload.userId);
-    if (!advCounterCanEdit(payload.key, requester)) return;
-
-    if (payload.action === "set") {
-      await advCounterSetValue(payload.key, payload.value);
-    }
-
-    if (payload.action === "adjust") {
-      await advCounterAdjustValue(payload.key, payload.delta);
-    }
-  });
-}
-
 function registerAdvCounterCombatReset() {
   Hooks.on("createCombat", async () => {
     if (!advCounterIsPrimaryGM()) return;
@@ -877,13 +895,17 @@ async function migrateAdvCounterClientDefaults() {
 }
 
 Hooks.once("ready", async () => {
-  registerAdvCounterSocket();
   registerAdvCounterCombatReset();
   await migrateAdvCounterClientDefaults();
+  await advCounterEnsureStateJournal();
   ImpCounterManager.init();
 
   Hooks.on("renderPlayerList", () => {
     ImpCounterManager.setupLauncherPositioning();
+  });
+
+  Hooks.on("updateJournalEntry", (journal) => {
+    if (journal.name === ADV_COUNTER_STATE_JOURNAL_NAME) ImpCounterManager.renderAll();
   });
 
   game.impCounter = {
